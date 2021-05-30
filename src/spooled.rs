@@ -104,6 +104,17 @@ impl SpooledTempFile {
             SpooledInner::OnDisk(ref mut file) => file.set_len(size),
         }
     }
+
+    pub fn try_clone(&self) -> io::Result<SpooledTempFile> {
+        let inner = match &self.inner {
+            SpooledInner::InMemory(cursor) => SpooledInner::InMemory(cursor.clone()),
+            SpooledInner::OnDisk(file) => SpooledInner::OnDisk(file.try_clone()?)
+        };
+        Ok(SpooledTempFile {
+            max_size: self.max_size,
+            inner
+        })
+    }
 }
 
 impl Read for SpooledTempFile {
