@@ -1,6 +1,6 @@
 use crate::file::tempfile;
 use std::fs::File;
-use std::io::{self, Cursor, Read, Seek, SeekFrom, Write};
+use std::io::{self, BufWriter, Cursor, Read, Seek, SeekFrom, Write};
 
 #[derive(Debug)]
 enum SpooledInner {
@@ -140,7 +140,7 @@ impl Write for SpooledTempFile {
         // write the bytes
         match self.inner {
             SpooledInner::InMemory(ref mut cursor) => cursor.write(buf),
-            SpooledInner::OnDisk(ref mut file) => file.write(buf),
+            SpooledInner::OnDisk(ref mut file) => BufWriter::new(file).write(buf),
         }
     }
 
